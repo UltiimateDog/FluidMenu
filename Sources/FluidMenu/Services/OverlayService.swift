@@ -96,35 +96,26 @@ public struct OverlayService {
             bounds: bounds,
             margin: margin
         )
-        
+                
         if overflow.xOverflow {
-            NSLog(
-                """
-                [OverlayService] Overlay width exceeds available bounds.
-                Overlay width: \(overlaySize.width),
-                Horizontal margins: \(margin * 2),
-                Available width: \(bounds.width).
-                This indicates a layout bug and should be investigated.
-                """
-            )
-#if DEBUG
-            print("[OverlayService] Overlay width exceeds available bounds (\(overlaySize.width) > \(bounds.width))")
-#endif
+            OverlayLog.service.error("""
+            Overlay width exceeds available bounds.
+            Overlay width: \(overlaySize.width, privacy: .public)
+            Horizontal margins: \(margin * 2, privacy: .public)
+            Available width: \(bounds.width, privacy: .public)
+            This indicates a layout bug and should be investigated.
+            """)
         }
         
         if overflow.yOverflow {
-            NSLog(
-                """
-                [OverlayService] Overlay height exceeds available bounds.
-                Overlay height: \(overlaySize.height),
-                Available height: \(bounds.height).
-                This indicates a layout bug and should be investigated.
-                """
-            )
-#if DEBUG
-            print("[OverlayService] Overlay height exceeds available bounds (\(overlaySize.height) > \(bounds.height))")
-#endif
+            OverlayLog.service.error("""
+            Overlay height exceeds available bounds.
+            Overlay height: \(overlaySize.height, privacy: .public)
+            Available height: \(bounds.height, privacy: .public)
+            This indicates a layout bug and should be investigated.
+            """)
         }
+        
         
         return CGPoint(x: x, y: y)
     }

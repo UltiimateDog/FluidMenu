@@ -125,6 +125,10 @@ private struct OverlayGeometryPublisher: ViewModifier {
                         proxy.frame(in: .named(OverlayConstants.coordinateSpace))
                     },
                     action: { newBounds in
+                        OverlayLog.host.debug(
+                            "Overlay bounds updated: \(String(describing: newBounds), privacy: .public)"
+                        )
+
                         manager.overlayBounds = newBounds
                     }
                 )
@@ -134,10 +138,15 @@ private struct OverlayGeometryPublisher: ViewModifier {
                         proxy.safeAreaInsets
                     },
                     action: { newInsets in
+                        OverlayLog.host.debug(
+                            "Safe area insets updated: \(String(describing: newInsets), privacy: .public)"
+                        )
+
                         manager.safeAreaInsets = newInsets
                     }
                 )
         }
+
     }
 }
 
