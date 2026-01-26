@@ -2,6 +2,8 @@
 
 A lightweight, extensible overlay infrastructure for SwiftUI, designed to support context menus, popovers, and other floating UI elements with precise placement, custom animations, and advanced visual styling.
 
+![Description of the image](Assets/Assets/FluidMenuPackageIcon.png)
+
 ---
 
 ## Motivation
