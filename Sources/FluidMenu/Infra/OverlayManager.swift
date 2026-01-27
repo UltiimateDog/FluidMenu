@@ -157,6 +157,6 @@ public final class OverlayManager {
     /// - Observed by the host, not acted upon internally by the manager
     /// - Does not affect production behavior unless explicitly enabled
     /// - Can later be surfaced via explicit debug APIs if needed
-    internal private(set) var showGeometry: Bool = true
+    internal private(set) var showGeometry: Bool = false
 
 }
