@@ -174,12 +174,12 @@ private struct FluidContextMenu<Content: View>: View {
     var body: some View {
         ZStack {
             dismissableBackground()
+                .ignoresSafeArea()
             
             liquidGlassBox()
             
             menuContent()
         }
-        .ignoresSafeArea()
         // MARK: - Behaviours
         // Animates the menu content appearance after the container
         // has been laid out to avoid visual jumps during placement
