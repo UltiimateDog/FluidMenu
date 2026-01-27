@@ -1,6 +1,6 @@
 # Overlay System
 
-A lightweight, extensible overlay infrastructure for SwiftUI, designed to support context menus, popovers, and other floating UI elements with precise placement, custom animations, and advanced visual styling.
+A lightweight, extensible overlay infrastructure for SwiftUI, designed to support context menus, popovers, and other floating UI elements with precise placement, custom animations, and advanced visual styling — including full control over liquid glass color, custom images, and per-item text colors that are not possible with Apple’s built-in menus.
 
 <div align="center">
 <img src="Assets/FluidMenuPackageIcon.png" width="25%" />
@@ -16,8 +16,12 @@ SwiftUI’s built-in presentation tools (e.g. `.contextMenu`, `.popover`) are co
 * Full control over animations and transitions
 * Custom visual effects (e.g. liquid glass, materials)
 * Decoupling presentation from view hierarchy constraints
+* Customization of menu visuals, such as:
+  - Liquid glass color/tint
+  - Arbitrary images/icons in menu rows
+  - Per-item text colors and fonts
 
-This overlay system addresses those needs by introducing a **centralized overlay layer** that can host arbitrary SwiftUI views while remaining layout- and animation-agnostic.
+This overlay system addresses those needs by introducing a centralized overlay layer that can host arbitrary SwiftUI views while remaining layout- and animation-agnostic. You own the visuals and content — including images and text colors — and we provide placement, hosting, and lifecycle.
 
 ---
 
@@ -30,15 +34,14 @@ The overlay system is composed of a small number of focused components, each wit
 The single source of truth for overlay presentation state.
 
 Responsibilities:
-
 * Stores the currently active overlay (`AnyView?`)
 * Exposes simple APIs to show and hide overlays
-* Publishes layout bounds for placement logic
+* Publishes layout bounds and safe area insets for placement logic
+* Exposes an `overlayTransition` used by the host when presenting/dismissing
 
 Non-responsibilities:
-
 * Layout calculations
-* Animations or transitions
+* Animations or transitions for overlay content itself
 * Interaction rules
 
 `OverlayManager` is intentionally implemented as a singleton, as overlays are treated as application-wide UI elements rather than view-local state.
@@ -50,11 +53,10 @@ Non-responsibilities:
 A container view that bridges overlay state to rendering.
 
 Responsibilities:
-
 * Injects `OverlayManager` into the SwiftUI environment
 * Renders the active overlay above main content
 * Establishes a named coordinate space for geometry capture
-* Publishes layout bounds to the manager
+* Publishes layout bounds and safe area insets to the manager
 
 `OverlayHost` should be placed once near the root of the view hierarchy.
 
@@ -65,7 +67,6 @@ Responsibilities:
 A stateless layout service responsible for overlay placement and overflow detection.
 
 Responsibilities:
-
 * Calculates overlay placement relative to a source frame
 * Detects horizontal and vertical overflow conditions
 * Provides predictable fallback behavior when space is constrained
@@ -78,9 +79,8 @@ This service is pure (aside from debug logging) and does not modify UI state.
 
 The custom context menu implementation builds on the overlay infrastructure:
 
-* `CustomContextMenuModifier`
-* `OverlayContextMenu` (private rendering view)
-* `OverlayMenu` (higher-level convenience component)
+* `FluidContextMenu` (internal modifier + private rendering view)
+* `FluidMenu` (public, higher-level convenience component)
 
 Together, these provide:
 
@@ -88,7 +88,8 @@ Together, these provide:
 * Geometry-aware placement
 * Matched geometry animations
 * Scroll handling for overflow content
-* Liquid glass visual styling
+* Liquid glass visual styling with customizable tint
+* Arbitrary SwiftUI content — including custom images and text colors
 
 ---
 
