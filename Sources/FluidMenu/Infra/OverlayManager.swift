@@ -74,21 +74,33 @@ public final class OverlayManager {
     @MainActor static let shared: OverlayManager = .init()
 
     private init() { }
+    
+    // MARK: - Public
+    
+    /// Presents a new overlay.
+    ///
+    /// Calling this method replaces any currently visible overlay.
+    ///
+    /// - Parameter content: A view builder that returns the overlay content.
+    public func show<Content: View>(@ViewBuilder _ content: () -> Content) {
+        overlay = AnyView(content())
+    }
 
-    /// The currently presented overlay view.
+    /// Dismisses the currently presented overlay.
     ///
-    /// When this value is non-`nil`, the `OverlayHost` is expected
-    /// to render the overlay above the main application content.
-    ///
-    /// Setting a new value replaces any existing overlay.
-    var overlay: AnyView? = nil
+    /// If no overlay is visible, this method has no effect.
+    public func hide() {
+        overlay = nil
+    }
+    
+    // MARK: - Public, read-only state
 
     /// The available layout bounds for overlays.
     ///
     /// This typically represents the safe area or container bounds
     /// used by overlay placement logic. The value is expected to be
     /// updated by the hosting view when layout changes.
-    var overlayBounds: CGRect = .zero
+    public internal(set) var overlayBounds: CGRect = .zero
     
     /// The current safe area insets of the overlay host.
     ///
@@ -106,27 +118,21 @@ public final class OverlayManager {
     /// - Stored separately from `overlayBounds` to allow finer-grained layout decisions
     /// - Enables overlays to opt into or out of safe-area-aware positioning
     /// - Keeps layout concerns centralized while remaining rendering-agnostic
-    var safeAreaInsets: EdgeInsets = .init()
+    public internal(set) var safeAreaInsets: EdgeInsets = .init()
+    
+    // MARK: - Internal-only state
+    
+    /// The currently presented overlay view.
+    ///
+    /// When this value is non-`nil`, the `OverlayHost` is expected
+    /// to render the overlay above the main application content.
+    ///
+    /// Setting a new value replaces any existing overlay.
+    var overlay: AnyView? = nil
     
     /// Transition to apply when presenting/dismissing the overlay.
     /// Stored as AnyTransition to match View.transition(_:) requirements.
     var overlayTransition: AnyTransition = .identity
-    
-    /// Presents a new overlay.
-    ///
-    /// Calling this method replaces any currently visible overlay.
-    ///
-    /// - Parameter content: A view builder that returns the overlay content.
-    func show<Content: View>(@ViewBuilder _ content: () -> Content) {
-        overlay = AnyView(content())
-    }
-
-    /// Dismisses the currently presented overlay.
-    ///
-    /// If no overlay is visible, this method has no effect.
-    func hide() {
-        overlay = nil
-    }
     
     // MARK: - DEBUG
     
