@@ -1,6 +1,6 @@
-# Overlay System
+# FluidMenu
 
-A lightweight, extensible overlay infrastructure for SwiftUI, designed to support context menus, popovers, and other floating UI elements with precise placement, custom animations, and advanced visual styling — including full control over liquid glass color, custom images, and per-item text colors that are not possible with Apple’s built-in menus.
+A lightweight, extensible overlay infrastructure for SwiftUI, designed to support **fluid context menus**, popovers, and other floating UI elements with precise placement, custom animations, and advanced visual styling.
 
 <div align="center">
 <img src="Assets/FluidMenuPackageIcon.png" width="25%" />
@@ -27,24 +27,25 @@ This overlay system addresses those needs by introducing a centralized overlay l
 
 ## Architecture Overview
 
-The overlay system is composed of a small number of focused components, each with a clearly defined responsibility:
+FluidMenu is composed of a small number of focused components, each with a clearly defined responsibility.
 
 ### 1. `OverlayManager`
 
 The single source of truth for overlay presentation state.
 
-Responsibilities:
-* Stores the currently active overlay (`AnyView?`)
-* Exposes simple APIs to show and hide overlays
-* Publishes layout bounds and safe area insets for placement logic
-* Exposes an `overlayTransition` used by the host when presenting/dismissing
+**Responsibilities**
 
-Non-responsibilities:
-* Layout calculations
-* Animations or transitions for overlay content itself
-* Interaction rules
+- Stores the currently active overlay (`AnyView?`)
+- Exposes simple APIs to show and hide overlays
+- Publishes layout bounds and safe area information for placement logic
 
-`OverlayManager` is intentionally implemented as a singleton, as overlays are treated as application-wide UI elements rather than view-local state.
+**Non-responsibilities**
+
+- Layout calculations
+- Animations or transitions
+- Interaction rules
+
+`OverlayManager` is intentionally implemented as a singleton, as overlays are treated as **application-wide UI elements** rather than view-local state.
 
 ---
 
@@ -52,11 +53,12 @@ Non-responsibilities:
 
 A container view that bridges overlay state to rendering.
 
-Responsibilities:
-* Injects `OverlayManager` into the SwiftUI environment
-* Renders the active overlay above main content
-* Establishes a named coordinate space for geometry capture
-* Publishes layout bounds and safe area insets to the manager
+**Responsibilities**
+
+- Injects `OverlayManager` into the SwiftUI environment
+- Renders the active overlay above main content
+- Establishes a named coordinate space for geometry capture
+- Publishes layout bounds and safe area insets to the manager
 
 `OverlayHost` should be placed once near the root of the view hierarchy.
 
@@ -66,30 +68,31 @@ Responsibilities:
 
 A stateless layout service responsible for overlay placement and overflow detection.
 
-Responsibilities:
-* Calculates overlay placement relative to a source frame
-* Detects horizontal and vertical overflow conditions
-* Provides predictable fallback behavior when space is constrained
+**Responsibilities**
+
+- Calculates overlay placement relative to a source frame
+- Detects horizontal and vertical overflow conditions
+- Provides predictable fallback behavior when space is constrained
 
 This service is pure (aside from debug logging) and does not modify UI state.
 
 ---
 
-### 4. Context Menu System
+### 4. Fluid Context Menu System
 
-The custom context menu implementation builds on the overlay infrastructure:
+FluidMenu’s custom context menu implementation builds directly on the overlay infrastructure:
 
-* `FluidContextMenu` (internal modifier + private rendering view)
-* `FluidMenu` (public, higher-level convenience component)
+- `.fluidContextMenu` (view modifier)
+- `FluidContextMenu` (private rendering view)
+- `FluidMenu` (higher-level convenience component)
 
 Together, these provide:
 
-* Long-press triggered presentation
-* Geometry-aware placement
-* Matched geometry animations
-* Scroll handling for overflow content
-* Liquid glass visual styling with customizable tint
-* Arbitrary SwiftUI content — including custom images and text colors
+- Long-press–triggered presentation
+- Geometry-aware placement
+- Matched geometry animations
+- Scroll handling for overflow content
+- Liquid glass–style visual treatment
 
 ---
 
@@ -114,7 +117,7 @@ OverlayHost {
 @State private var isPresented = false
 
 Text("Options")
-    .customContextMenu(
+    .fluidContextMenu(
         isPresented: $isPresented,
         namespace: namespace
     ) {
@@ -128,12 +131,12 @@ Text("Options")
 
 ---
 
-### Using `OverlayMenu`
+### Using `FluidMenu`
 
-`OverlayMenu` is a compact, reusable control that bundles a trigger label with an overlay-backed menu:
+`FluidMenu` is a compact, reusable control that bundles a trigger label with an overlay-backed menu:
 
 ```swift
-OverlayMenu {
+FluidMenu {
     VStack {
         Text("Item 1")
         Text("Item 2")
@@ -159,7 +162,7 @@ OverlayMenu {
 * Only a single overlay can be presented at a time
 * No built-in stacking or prioritization
 * Limited accessibility support (WIP)
-* `OverlayMenu` is intentionally minimal and unfinished
+* `FluidMenu` is intentionally minimal and unfinished
 
 ---
 
