@@ -127,4 +127,30 @@ public final class OverlayManager {
     func hide() {
         overlay = nil
     }
+    
+    // MARK: - DEBUG
+    
+    /// Controls whether diagnostic geometry information is rendered by the overlay host.
+    ///
+    /// When enabled, the hosting container (such as `OverlayHost`) may render
+    /// visual debugging aids that illustrate overlay bounds, safe area insets,
+    /// and other layout-related geometry information.
+    ///
+    /// This flag is intended strictly for development and debugging purposes.
+    /// It does **not** influence overlay behavior, placement logic, animations,
+    /// or interaction rules.
+    ///
+    /// ## Access Control
+    /// - Readable within the module
+    /// - Writable only by `OverlayManager`
+    ///
+    /// This ensures that diagnostic state remains centrally managed and cannot
+    /// be mutated arbitrarily by consumers of the overlay infrastructure.
+    ///
+    /// ## Design Notes
+    /// - Observed by the host, not acted upon internally by the manager
+    /// - Does not affect production behavior unless explicitly enabled
+    /// - Can later be surfaced via explicit debug APIs if needed
+    internal private(set) var showGeometry: Bool = true
+
 }

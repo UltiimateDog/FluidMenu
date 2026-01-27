@@ -16,7 +16,11 @@ import SwiftUI
 ///
 /// This view acts as the **bridge** between overlay state (`OverlayManager`)
 /// and actual rendering, but intentionally avoids making decisions about
-/// layout or overlay content.
+/// layout, animation, or overlay content.
+///
+/// Debug-only visualization (such as geometry overlays) may be conditionally
+/// rendered to aid development, but is not considered part of the core
+/// production responsibility of this type.
 ///
 /// ## Responsibilities
 /// - Inject a shared `OverlayManager` into the environment
@@ -29,6 +33,7 @@ import SwiftUI
 /// - Managing overlay animations or transitions
 /// - Handling overlay dismissal logic
 /// - Supporting multiple or stacked overlays
+/// - Owning or defining debugging tools (only hosting them conditionally)
 ///
 /// ## Design Notes
 /// - Uses a `ZStack` to ensure overlays are always rendered above content
@@ -49,6 +54,9 @@ public struct OverlayHost<Content: View>: View {
     /// Stored locally to guarantee a stable reference that is both
     /// observed and injected into the environment for the lifetime
     /// of the host.
+    ///
+    /// This property is intentionally not exposed and is treated as
+    /// immutable from the perspective of `OverlayHost`.
     private var manager = OverlayManager.shared
 
     /// The main application content rendered beneath overlays.
@@ -66,7 +74,21 @@ public struct OverlayHost<Content: View>: View {
         ZStack {
             // Main application content
             content
-
+            
+#if  DEBUG
+            // Show geometry for debuggin purposes
+            if manager.showGeometry {
+                OverlayGeometryDebugView(manager: manager)
+            }
+#endif
+            
+            // An empty GeometryReader used to keep the view subscribed to
+            // geometry updates (e.g. rotation or window size changes).
+            //
+            // Without this, geometry updates may not propagate correctly
+            // when the main content does not fully cover the screen.
+            GeometryReader { _ in }
+            
             // Overlay rendering layer
             if let overlay = manager.overlay {
                 overlay
@@ -96,6 +118,11 @@ public struct OverlayHost<Content: View>: View {
 /// The captured values are forwarded to the provided `OverlayManager`,
 /// enabling downstream overlay placement logic without tightly coupling
 /// layout measurement to overlay rendering.
+///
+/// ## Rationale
+/// Implemented as a view modifier to decouple geometry measurement
+/// from overlay rendering and to keep `OverlayHost` focused on
+/// composition rather than measurement mechanics.
 ///
 /// ## Responsibilities
 /// - Measure the host view’s frame within the overlay coordinate space
