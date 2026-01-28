@@ -102,7 +102,7 @@ public struct OverlayHost<Content: View>: View {
         // Make the overlay manager available to all descendants.
         .environment(\.overlayManager, manager)
         // Establish a coordinate space for geometry-based placement.
-        .coordinateSpace(.named(OverlayConstants.coordinateSpace))
+        .coordinateSpace(name: OverlayConstants.coordinateSpace)
         // Capture layout bounds for overlay placement calculations.
         .modifier(OverlayGeometryPublisher(manager: manager))
     }
@@ -146,25 +146,34 @@ private struct OverlayGeometryPublisher: ViewModifier {
     func body(content: Content) -> some View {
         content.background {
             Color.clear
-                .onGeometryChange(for: CGRect.self) { proxy in
-                    proxy.frame(in: OverlayConstants.coordinateSpace)
-                } action: { newBounds in
-                    OverlayLog.host.debug(
-                        "Overlay bounds updated: \(String(describing: newBounds), privacy: .public)"
-                    )
-                    
-                    manager.overlayBounds = newBounds
-                }
-                .onGeometryChange(for: EdgeInsets.self) { proxy in
-                    proxy.safeAreaInsets
-                } action: { newInsets in
-                    OverlayLog.host.debug(
-                        "Safe area insets updated: \(String(describing: newInsets), privacy: .public)"
-                    )
-                    
-                    manager.safeAreaInsets = newInsets
-                }
-        }//: Back
+                .onGeometryChange(
+                    for: CGRect.self,
+                    of: { proxy in
+                        proxy.frame(in: .named(OverlayConstants.coordinateSpace))
+                    },
+                    action: { newBounds in
+                        OverlayLog.host.debug(
+                            "Overlay bounds updated: \(String(describing: newBounds), privacy: .public)"
+                        )
+
+                        manager.overlayBounds = newBounds
+                    }
+                )
+                .onGeometryChange(
+                    for: EdgeInsets.self,
+                    of: { proxy in
+                        proxy.safeAreaInsets
+                    },
+                    action: { newInsets in
+                        OverlayLog.host.debug(
+                            "Safe area insets updated: \(String(describing: newInsets), privacy: .public)"
+                        )
+
+                        manager.safeAreaInsets = newInsets
+                    }
+                )
+        }
+
     }
 }
 

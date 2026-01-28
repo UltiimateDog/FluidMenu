@@ -119,28 +119,3 @@ public struct FluidMenu<MenuContent: View, Label: View>: View {
     }
     .containerizedInOverlayHost()
 }
-
-/// Preview demonstrating an overlay menu with scrollable content.
-#Preview {
-    NavigationStack {
-        FluidMenu {
-            VStack {
-                ForEach(1...8, id: \.self) { i in
-                    Text("Test text for menu item \(i)")
-                }
-            }
-            .padding(.vertical, 20)
-            .padding(.horizontal, 15)
-        } label: {
-            Image(systemName: "ellipsis")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 19, height: 19)
-                .foregroundStyle(.blue)
-                .fontWeight(.semibold)
-        }
-    }
-    .containerizedInOverlayHost()
-}
-
-

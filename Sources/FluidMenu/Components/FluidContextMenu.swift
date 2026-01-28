@@ -67,10 +67,9 @@ internal struct FluidContextMenuModifier<MenuContent: View>: ViewModifier {
         content
         // MARK: - Position
             .onGeometryChange(for: CGRect.self) { geometry in
-                geometry.frame(in: OverlayConstants.coordinateSpace)
+                geometry.frame(in: .named(OverlayConstants.coordinateSpace))
             } action: { newFrame in
-                let origin = overlayManager.overlayBounds.origin
-                sourceFrame = newFrame.insetBy(dx: -origin.x, dy: -origin.y)
+                sourceFrame = newFrame
             }
         // MARK: - Long Press
             // Presents the context menu using a long-press gesture.
