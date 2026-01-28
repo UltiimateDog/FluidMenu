@@ -33,7 +33,7 @@ public enum OverlayConstants {
     /// required for accurate geometry capture and placement of overlays.
     /// All geometry calculations performed by the overlay system assume
     /// frames are measured within this space.
-    public static let coordinateSpace: String = "OverlayCoordinateSpace"
+    nonisolated(unsafe) public static let coordinateSpace: CoordinateSpace = .named("OverlayCoordinateSpace")
 
     /// Named space used for matched geometry effects within overlay menus.
     ///

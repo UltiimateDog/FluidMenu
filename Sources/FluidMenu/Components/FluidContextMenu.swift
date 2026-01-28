@@ -67,15 +67,16 @@ internal struct FluidContextMenuModifier<MenuContent: View>: ViewModifier {
         content
         // MARK: - Position
             .onGeometryChange(for: CGRect.self) { geometry in
-                geometry.frame(in: .named(OverlayConstants.coordinateSpace))
+                geometry.frame(in: OverlayConstants.coordinateSpace)
             } action: { newFrame in
-                sourceFrame = newFrame
+                let origin = overlayManager.overlayBounds.origin
+                sourceFrame = newFrame.insetBy(dx: -origin.x, dy: -origin.y)
             }
         // MARK: - Long Press
             // Presents the context menu using a long-press gesture.
             // The overlay transition is configured before presentation to ensure consistent animation behavior.
             .onLongPressGesture(minimumDuration: 0.5) {
-                withAnimation(.bouncy()) {
+                withAnimation(.bouncy) {
                     isPresented = true
                     
                     overlayManager.overlayTransition = OverlayConstants.contextMenuTransition
