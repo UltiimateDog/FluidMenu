@@ -134,7 +134,6 @@ public struct FluidMenu<MenuContent: View, Label: View>: View {
 
 #Preview {
     NavigationStack {
-        
         ScrollView {
             ForEach(0...10, id:\.self) { _ in
                 HStack {

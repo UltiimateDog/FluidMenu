@@ -181,3 +181,70 @@ Potential extensions include:
 ## Summary
 
 This overlay system provides a flexible foundation for advanced UI presentation in SwiftUI, without over-committing to a specific interaction or visual style. It is designed to scale gradually as application needs evolve.
+
+## Troubleshooting
+
+### Context menu appears offset inside a `NavigationStack`
+
+If you notice that a `FluidMenu` or `.fluidContextMenu` appears **shifted away from its source view** (typically downward or inward) **only when used inside a `NavigationStack`**, this is a known SwiftUI geometry quirk.
+
+#### The cause
+
+FluidMenu’s placement system assumes that:
+
+- The overlay coordinate space is **safe-area-aware**
+- `(0,0)` corresponds to the **safe area’s top-left**
+- Source frames captured from a named coordinate space are already
+  expressed relative to that same origin
+
+This assumption holds in most view hierarchies.
+
+However, when a source view is embedded inside a `NavigationStack`, SwiftUI may report geometry frames that **already include the safe area inset**, even though the named coordinate space itself is still safe-area-relative.
+
+The result is a **double application of the safe area offset**, causing overlays to be positioned incorrectly.
+
+This behavior does **not** occur outside of navigation-based containers.
+
+---
+
+#### The fix
+
+When presenting a fluid menu **inside a `NavigationStack` hierarchy**, enable safe-area correction on the overlay manager:
+
+```swift
+overlayManager.ignoreSafeAreaInsets = true
+```
+
+This removes the undesired offset and restores correct alignment between the source view and its overlay.
+
+---
+
+#### When to use `ignoreSafeAreaInsets`
+
+Enable it **only when**:
+
+- The source view is inside a `NavigationStack`
+- The menu appears visually offset despite using the correct coordinate space
+- Geometry frames appear to include safe area insets unexpectedly
+
+Leave it **disabled (default)** when:
+
+- Not using `NavigationStack`
+- Geometry frames align correctly with the overlay
+- Overlays are already positioned as expected
+
+> ⚠️ **Important**  
+> This flag is a *geometry correction*, not a layout preference.  
+> Enabling it unnecessarily may cause overlays to shift outside the visible safe area.
+
+---
+
+#### Why this is not handled automatically
+
+SwiftUI does not expose a reliable way to detect whether a reported frame
+includes implicit safe area offsets.
+
+To keep the layout system predictable and the placement service pure,
+FluidMenu exposes this behavior as an explicit opt-in rather than applying
+heuristics that could fail silently.
+
