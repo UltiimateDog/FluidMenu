@@ -65,16 +65,16 @@ public struct OverlayService {
         let y: CGFloat = {
             let halfHeight = overlaySize.height / 2
             
-            if sourceFrame.minY + overlaySize.height <= bounds.maxY {
+            if sourceFrame.minY + overlaySize.height <= bounds.height {
                 return sourceFrame.minY + halfHeight
             }
             
-            if overlaySize.height <= sourceFrame.maxY - bounds.minY {
+            if overlaySize.height <= sourceFrame.maxY {
                 return sourceFrame.maxY - halfHeight
             }
             
             // Fallback: clamp to top of bounds
-            return bounds.minY + halfHeight
+            return halfHeight
         }()
         
         // MARK: - Horizontal placement
@@ -82,12 +82,12 @@ public struct OverlayService {
         let x: CGFloat = {
             let halfWidth = overlaySize.width / 2
             
-            if sourceFrame.minX + overlaySize.width + margin <= bounds.maxX {
+            if sourceFrame.minX + overlaySize.width + margin <= bounds.width {
                 return sourceFrame.minX + halfWidth
             }
             
             // Snap to the right
-            return bounds.maxX - halfWidth - margin
+            return bounds.width - halfWidth - margin
         }()
         
         // MARK: - Validation / Logging

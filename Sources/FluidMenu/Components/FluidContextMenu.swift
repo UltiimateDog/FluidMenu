@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+#warning("There's a bug where if the source frame is already in the safe area insets the menu is positionated outside the safe area.")
+
 // MARK: - Modifier
 /// A custom context menu modifier that presents menu content
 /// using the app-wide overlay system.
@@ -69,7 +71,8 @@ internal struct FluidContextMenuModifier<MenuContent: View>: ViewModifier {
             .onGeometryChange(for: CGRect.self) { geometry in
                 geometry.frame(in: .named(OverlayConstants.coordinateSpace))
             } action: { newFrame in
-                sourceFrame = newFrame
+                let origin = overlayManager.origin
+                sourceFrame = newFrame.offsetBy(dx: -origin.x, dy: -origin.y)
             }
         // MARK: - Long Press
             // Presents the context menu using a long-press gesture.

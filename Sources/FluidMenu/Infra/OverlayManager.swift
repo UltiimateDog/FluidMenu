@@ -93,6 +93,49 @@ public final class OverlayManager {
         overlay = nil
     }
     
+    /// Controls whether source view frames should be corrected to remove
+    /// an implicit safe area offset introduced by certain SwiftUI containers.
+    ///
+    /// This flag does **not** change how overlays are laid out or rendered.
+    /// It exists solely to reconcile coordinate space inconsistencies when
+    /// measuring source frames for overlay placement.
+    ///
+    /// ## Default Behavior (`false`)
+    /// - The overlay coordinate space is **safe-area-aware**
+    /// - `(0,0)` corresponds to the **safe area’s top-left**
+    /// - Placement logic already assumes safe-area-relative coordinates
+    ///
+    /// This is the **correct and expected configuration** when source frames
+    /// are measured from views that correctly report their position within
+    /// the named overlay coordinate space (most container hierarchies).
+    ///
+    /// ## When set to `true`
+    /// - Source frames are assumed to include an **undesired safe area offset**
+    /// - The overlay system compensates by translating frames back into
+    ///   safe-area-relative coordinates
+    ///
+    /// This mode is required when measuring geometry inside containers
+    /// such as `NavigationStack`, where SwiftUI may report frames that
+    /// already include safe area insets *even though the coordinate space
+    /// itself is safe-area-relative*.
+    ///
+    /// ## NavigationStack Caveat
+    /// When a view is embedded inside a `NavigationStack`, geometry proxies
+    /// queried using the same named coordinate space may return frames whose
+    /// origin has been shifted by the safe area insets.
+    ///
+    /// This results in a **double application of safe area offsets**, causing
+    /// overlays to be positioned too far from their source view.
+    ///
+    /// Enabling `ignoreSafeAreaInsets` removes this extra offset and restores
+    /// correct spatial alignment.
+    ///
+    /// ## Design Notes
+    /// - This flag compensates for SwiftUI container behavior, not layout intent
+    /// - It should only be enabled when such misreporting is observed
+    /// - Incorrect usage may shift overlays outside the visible safe area
+    public var ignoreSafeAreaInsets: Bool = false
+    
     // MARK: - Public, read-only state
 
     /// The available layout bounds for overlays.
@@ -128,11 +171,42 @@ public final class OverlayManager {
     /// to render the overlay above the main application content.
     ///
     /// Setting a new value replaces any existing overlay.
-    var overlay: AnyView? = nil
+    internal var overlay: AnyView? = nil
     
     /// Transition to apply when presenting/dismissing the overlay.
     /// Stored as AnyTransition to match View.transition(_:) requirements.
-    var overlayTransition: AnyTransition = .identity
+    internal var overlayTransition: AnyTransition = .identity
+    
+    /// The corrective origin applied when normalizing source view geometry.
+    ///
+    /// This value represents the offset that must be subtracted from a
+    /// measured source frame when SwiftUI reports geometry that already
+    /// includes safe area insets, despite the overlay coordinate space
+    /// being safe-area-relative.
+    ///
+    /// ## Behavior
+    /// - When `ignoreSafeAreaInsets` is `false`, no correction is applied
+    ///   and the origin resolves to `.zero`
+    /// - When `ignoreSafeAreaInsets` is `true`, the origin reflects the
+    ///   overlay host’s bounds origin and is used to remove the extra
+    ///   safe area offset from the source frame
+    ///
+    /// ## Usage
+    /// This value is intended to be applied **at the moment a source frame
+    /// is captured**, ensuring that all geometry passed into placement
+    /// services is already normalized.
+    ///
+    /// Placement and overflow logic assumes:
+    /// - `(0,0)` is the safe area’s top-left
+    /// - No additional coordinate reconciliation is required
+    ///
+    /// ## Design Notes
+    /// - Exists specifically to correct SwiftUI geometry inconsistencies
+    /// - Keeps layout services pure and container-agnostic
+    /// - Centralizes safe area correction in one place
+    internal var origin: CGPoint {
+        ignoreSafeAreaInsets ? overlayBounds.origin : .zero
+    }
     
     // MARK: - DEBUG
     
