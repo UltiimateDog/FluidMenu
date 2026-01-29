@@ -101,21 +101,68 @@ public struct FluidMenu<MenuContent: View, Label: View>: View {
 
 /// Preview demonstrating an overlay menu with scrollable content.
 #Preview {
-    FluidMenu {
-        VStack {
-            ForEach(1...8, id: \.self) { i in
-                Text("Test text for menu item \(i)")
+    ScrollView {
+        ForEach(0...10, id:\.self) { _ in
+            HStack {
+                Spacer()
+                
+                FluidMenu {
+                    VStack {
+                        ForEach(1...7, id: \.self) { i in
+                            Text("Test text for menu item \(i)")
+                        }
+                    }
+                    .padding(.vertical, 20)
+                    .padding(.horizontal, 15)
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 19, height: 19)
+                        .foregroundStyle(.blue)
+                        .fontWeight(.semibold)
+                }
             }
+            .padding()
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 15)
-    } label: {
-        Image(systemName: "ellipsis")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 19, height: 19)
-            .foregroundStyle(.blue)
-            .fontWeight(.semibold)
     }
     .containerizedInOverlayHost()
+    .onAppear {
+        OverlayManager.shared.ignoreSafeAreaInsets = false
+    }
+}
+
+#Preview {
+    NavigationStack {
+        
+        ScrollView {
+            ForEach(0...10, id:\.self) { _ in
+                HStack {
+                    Spacer()
+                    
+                    FluidMenu {
+                        VStack {
+                            ForEach(1...7, id: \.self) { i in
+                                Text("Test text for menu item \(i)")
+                            }
+                        }
+                        .padding(.vertical, 20)
+                        .padding(.horizontal, 15)
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 19, height: 19)
+                            .foregroundStyle(.blue)
+                            .fontWeight(.semibold)
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+    .containerizedInOverlayHost()
+    .onAppear {
+        OverlayManager.shared.ignoreSafeAreaInsets = true
+    }
 }
